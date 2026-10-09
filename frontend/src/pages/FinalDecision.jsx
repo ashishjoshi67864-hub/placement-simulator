@@ -185,7 +185,7 @@ export default function FinalDecision({ onRetry }) {
   const {
     decision          = "NOT SHORTLISTED",
     overallScore      = 0,
-    placementReadiness = 0,
+    placementReadiness: _placementReadiness = 0,
     recruiterSummary  = "",
     strengths         = [],
     gaps              = [],

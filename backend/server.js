@@ -26,19 +26,52 @@ const ai = new GoogleGenAI({
   does not stop.
 */
 
-const GEMINI_MODELS = [
-    "gemini-3.5-flash",
-    "gemini-3.6-flash",
-    "gemini-3.7-flash",
-    "gemini-3.8-flash",
-];
+/*
+  Model priority list.
+  We try each in order, skipping on quota/temp errors.
+  Override via GEMINI_MODELS env var (comma-separated) for easy future updates.
+*/
+const GEMINI_MODELS = process.env.GEMINI_MODELS
+    ? process.env.GEMINI_MODELS.split(",").map(m => m.trim()).filter(Boolean)
+    : [
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-8b",
+    ];
 
 /* =========================================================
    MIDDLEWARE
 ========================================================= */
 
-app.use(cors());
-app.use(express.json());
+/* ─── CORS ─────────────────────────────────────────────────
+   Restrict to the Vite dev origin (5173) and any production
+   origin listed in ALLOWED_ORIGINS env var.
+   Never open to * in a real deployment.
+──────────────────────────────────────────────────────────── */
+const ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    ...(process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim())
+        : []),
+];
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            // Allow requests with no Origin header (e.g. curl, Postman in dev)
+            if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+                return callback(null, true);
+            }
+            callback(new Error(`CORS: origin '${origin}' is not allowed.`));
+        },
+        methods: ["GET", "POST", "OPTIONS"],
+        allowedHeaders: ["Content-Type"],
+    })
+);
+
+app.use(express.json({ limit: "1mb" }));
 
 /* =========================================================
    MULTER
@@ -247,8 +280,7 @@ app.post(
             );
 
             return res.status(500).json({
-                message: "Failed to process resume.",
-                error: error.message,
+                message: "Failed to process resume. Please try again.",
             });
         }
     }
@@ -466,7 +498,7 @@ app.post(
 
             const normalizedText = validation.normalizedText;
             const role = typeof targetRole === "string" && targetRole.trim()
-                ? targetRole.trim()
+                ? targetRole.trim().slice(0, 100)
                 : "Software Engineer";
 
             console.log(

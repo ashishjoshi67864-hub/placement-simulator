@@ -171,6 +171,7 @@ function Aptitude({ onContinue }) {
         }, 1000);
 
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [timeLeft, finished]);
 
     // ==========================================
@@ -396,7 +397,7 @@ function Aptitude({ onContinue }) {
                                             q.category ===
                                             "Quantitative Aptitude"
                                     ).filter(
-                                        (q, index) => {
+                                        (q, _index) => {
                                             const originalIndex =
                                                 questions.indexOf(q);
 

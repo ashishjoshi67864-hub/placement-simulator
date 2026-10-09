@@ -108,8 +108,10 @@ function TechnicalInterview({ onContinue }) {
     // FIRST QUESTION
     // ==========================================
 
+    // eslint-disable-next-line react/set-state-in-effect
     useEffect(() => {
         loadQuestion(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ==========================================

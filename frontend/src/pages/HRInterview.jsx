@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /* ============================================================
    SPEECH RECOGNITION DETECTION
@@ -98,10 +98,7 @@ export default function HRInterview({ onContinue }) {
     catch { return {}; }
   })();
   const resumeText = sessionStorage.getItem("resumeText") || "";
-  const resumeAnalysis = (() => {
-    try { return JSON.parse(sessionStorage.getItem("resumeAnalysis") || "{}"); }
-    catch { return {}; }
-  })();
+  // resumeAnalysis is not used directly in this component — HR question API uses resumeText
 
   /* ── state ── */
   const [phase, setPhase] = useState("interview"); // "interview" | "result"
@@ -171,7 +168,7 @@ export default function HRInterview({ onContinue }) {
     setIsListening(false);
     setIsFinalizing(false);
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (_) { /* */ }
+      try { recognitionRef.current.stop(); } catch { /* intentional */ }
       recognitionRef.current = null;
     }
     // Only clear the accumulator after we've fully stopped.
@@ -213,7 +210,7 @@ export default function HRInterview({ onContinue }) {
     // stop any ongoing STT first
     if (recognitionRef.current) {
       listeningRef.current = false;
-      try { recognitionRef.current.stop(); } catch (_) { /* */ }
+      try { recognitionRef.current.stop(); } catch { /* intentional */ }
       recognitionRef.current = null;
     }
 
@@ -270,7 +267,7 @@ export default function HRInterview({ onContinue }) {
         // Restart it to keep continuous mode alive.
         try {
           rec.start();
-        } catch (_) {
+        } catch {
           listeningRef.current = false;
           setIsListening(false);
           setIsFinalizing(false);
@@ -304,7 +301,7 @@ export default function HRInterview({ onContinue }) {
       recognitionRef.current = rec;
       listeningRef.current = true;
       setIsListening(true);
-    } catch (err) {
+    } catch {
       setVoiceError("Could not start voice recognition. Please type your answer.");
     }
   }
@@ -316,7 +313,7 @@ export default function HRInterview({ onContinue }) {
     setIsListening(false);
     setIsFinalizing(true); // waiting for onend to fire and finalize the answer
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (_) { /* */ }
+      try { recognitionRef.current.stop(); } catch { /* intentional */ }
       // Do NOT set recognitionRef.current = null here yet — onend needs to match it.
       // Do NOT clear interimRef here — the final onresult may still be in-flight.
     }
