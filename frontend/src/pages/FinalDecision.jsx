@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
    CONSTANTS
 ============================================================ */
 
-const API_URL = "http://localhost:5000/api/decision/final";
+const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/decision/final`;
 
 /* ============================================================
    HELPERS

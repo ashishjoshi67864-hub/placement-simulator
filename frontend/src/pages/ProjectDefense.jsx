@@ -48,7 +48,7 @@ function ProjectDefense({ onContinue }) {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/project/question",
+                `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/project/question`,
                 {
                     method: "POST",
 
@@ -148,7 +148,7 @@ function ProjectDefense({ onContinue }) {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/project/evaluate",
+                `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/interview/question`,
                 {
                     method: "POST",
 
